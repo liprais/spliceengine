@@ -67,6 +67,7 @@ import com.splicemachine.db.impl.sql.GenericStatement;
 import com.splicemachine.db.impl.sql.GenericStorablePreparedStatement;
 import com.splicemachine.db.impl.sql.compile.CompilerContextImpl;
 import com.splicemachine.db.impl.sql.execute.*;
+import com.splicemachine.db.impl.sql.misc.CommentStripper;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -75,6 +76,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import static com.splicemachine.db.iapi.reference.Property.MATCHING_STATEMENT_CACHE_IGNORING_COMMENT_OPTIMIZATION_DISABLED;
 
 /**
  * LanguageConnectionContext keeps the pool of prepared statements,
@@ -324,6 +327,9 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
     private String lastLogStmt;
     private String lastLogStmtFormat;
     private SessionPropertiesImpl sessionProperties;
+    private final CommentStripper commentStripper;
+    private boolean ignoreCommentOptDisabled = false;
+    private String origStmtTxt;
 
     /* constructor */
     public GenericLanguageConnectionContext(
@@ -358,6 +364,8 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
         this.instanceNumber=instanceNumber;
         this.drdaID=drdaID;
         this.dbname=dbname;
+        this.commentStripper = lcf.newCommentStripper();
+
         /* Find out whether or not to log info on executing statements to error log
          */
         String logStatementProperty=PropertyUtil.getServiceProperty(getTransactionCompile(),"derby.language.logStatementText");
@@ -385,6 +393,10 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
             this.sessionProperties.setProperty(SessionProperties.PROPERTYNAME.SKIPSTATS, new Boolean(skipStats).toString());
         if (defaultSelectivityFactor > 0)
             this.sessionProperties.setProperty(SessionProperties.PROPERTYNAME.DEFAULTSELECTIVITYFACTOR, new Double(defaultSelectivityFactor).toString());
+
+        String ignoreCommentOptDisabledStr = PropertyUtil.getCachedDatabaseProperty(getTransactionCompile(), MATCHING_STATEMENT_CACHE_IGNORING_COMMENT_OPTIMIZATION_DISABLED);
+        ignoreCommentOptDisabled = Boolean.valueOf(ignoreCommentOptDisabledStr);
+
     }
 
     /**
@@ -832,6 +844,11 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
         referencedColumnMap=new WeakHashMap<>();
 
         sessionProperties.resetAll();
+
+        // read again the property in case it is changed
+        String ignoreCommentOptDisabledStr = PropertyUtil.getCachedDatabaseProperty(getTransactionCompile(), MATCHING_STATEMENT_CACHE_IGNORING_COMMENT_OPTIMIZATION_DISABLED);
+        ignoreCommentOptDisabled = Boolean.valueOf(ignoreCommentOptDisabledStr);
+        origStmtTxt = null;
     }
 
     // debug methods
@@ -3679,23 +3696,23 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
     }
 
     @Override
-    public void logStartExecuting(String uuid, String engine, ExecPreparedStatement ps,
+    public void logStartExecuting(String uuid, String engine, String stmt, ExecPreparedStatement ps,
                                   ParameterValueSet pvs) {
         if (stmtLogger.isInfoEnabled()) {
             stmtLogger.info(String.format(
                     "Start executing query. %s, uuid=%s, engine=%s, %s, paramsCount=%d, params=[ %s ], sessionProperties=[ %s ]",
-                    getLogHeader(), uuid, engine, formatLogStmt(ps.getSource()),
+                    getLogHeader(), uuid, engine, formatLogStmt(stmt),
                     pvs.getParameterCount(), pvs.toString(), ps.getSessionPropertyValues()));
         }
     }
 
     @Override
-    public void logEndExecuting(String uuid, long modifiedRows, long badRecords, long
+    public void logEndExecuting(String uuid, String stmt, long modifiedRows, long badRecords, long
             nanoTimeSpent) {
         if (stmtLogger.isInfoEnabled()) {
-            stmtLogger.info(String.format("End executing query. %s, uuid=%s, timeSpent=%dms, " +
+            stmtLogger.info(String.format("End executing query. %s, uuid=%s, %s, timeSpent=%dms, " +
                             "modifiedRows=%d, badRecords=%d",
-                    getLogHeader(), uuid, nanoTimeSpent / 1000000, modifiedRows, badRecords));
+                    getLogHeader(), uuid, formatLogStmt(stmt), nanoTimeSpent / 1000000, modifiedRows, badRecords));
         }
     }
 
@@ -3736,5 +3753,21 @@ public class GenericLanguageConnectionContext extends ContextImpl implements Lan
             lastLogStmtFormat = result;
             return result;
         }
+    }
+
+    public void setOrigStmtTxt(String stmt) {
+        origStmtTxt = stmt;
+    }
+
+    public String getOrigStmtTxt() {
+        return origStmtTxt;
+    }
+
+    public CommentStripper getCommentStripper() {
+        return commentStripper;
+    }
+
+    public boolean getIgnoreCommentOptDisabled() {
+        return ignoreCommentOptDisabled;
     }
 }

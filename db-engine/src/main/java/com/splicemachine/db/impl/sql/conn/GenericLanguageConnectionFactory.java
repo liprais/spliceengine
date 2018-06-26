@@ -63,6 +63,7 @@ import com.splicemachine.db.iapi.types.DataValueFactory;
 import com.splicemachine.db.iapi.util.IdUtil;
 import com.splicemachine.db.iapi.util.StringUtil;
 import com.splicemachine.db.impl.sql.GenericStatement;
+import com.splicemachine.db.impl.sql.misc.CommentStripper;
 
 import java.io.Serializable;
 import java.util.Dictionary;
@@ -407,6 +408,10 @@ public class GenericLanguageConnectionFactory
     {
         return new com.splicemachine.db.impl.sql.compile.ParserImpl(cc);
     }
+
+    public CommentStripper newCommentStripper() {
+		return new com.splicemachine.db.impl.sql.misc.CommentStripperImpl();
+	}
 
 	// Class methods
 

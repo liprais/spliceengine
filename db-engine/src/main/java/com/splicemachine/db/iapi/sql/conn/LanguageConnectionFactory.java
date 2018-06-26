@@ -46,6 +46,7 @@ import com.splicemachine.db.iapi.sql.dictionary.SchemaDescriptor;
 import com.splicemachine.db.iapi.sql.execute.ExecutionFactory;
 import com.splicemachine.db.iapi.store.access.TransactionController;
 import com.splicemachine.db.iapi.types.DataValueFactory;
+import com.splicemachine.db.impl.sql.misc.CommentStripper;
 
 import java.util.List;
 
@@ -175,4 +176,6 @@ public interface LanguageConnectionFactory {
 
 
     public Parser newParser(CompilerContext cc);
+
+    public CommentStripper newCommentStripper();
 }
