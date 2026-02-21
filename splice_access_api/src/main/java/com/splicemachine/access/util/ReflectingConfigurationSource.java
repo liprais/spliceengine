@@ -16,7 +16,6 @@ package com.splicemachine.access.util;
 
 import java.util.Map;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import com.splicemachine.access.configuration.ConfigurationSource;
 
@@ -51,11 +50,11 @@ public class ReflectingConfigurationSource implements ConfigurationSource {
 
     @Override
     public Map<String, String> prefixMatch(String prefix) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object unwrapDelegate() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

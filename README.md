@@ -23,6 +23,11 @@ This will compile everything and start the database. Then, connect to the databa
    ./sqlshell.sh
 ````
 
+For detailed build and cluster startup instructions — including the new **Apache HBase 2.x** support — see:
+
+* **[Build Guide](docs/build-guide.md)** — how to build SpliceEngine for all platforms, including `apache-hbase-2`
+* **[Local Cluster Guide](docs/local-cluster-guide.md)** — how to start a local cluster for development and testing
+
 ## Code Structure
 Code is separated into 2 conceptual tiers: Core, and Storage Architectures
 
@@ -132,13 +137,13 @@ To run against the mem storage architecture, follow these steps:
 ### Build Core Modules and a Set of HBase Platform Modules
 HBase is further separated into sub-profiles, indicating the specific HBase distribution of interest. To build HBase against a specific distribution:
 
-1. Select the HBase version to build. These are the currently available versions:
-   *  `cdh5.6.0`
-   *  `cdh5.7.2`
-   *  `mapr5.1.0`
-   *  `mapr5.2.0`
-   *  `hdp2.4.2`
-   *  `hdp2.5.0`
+1. Select the HBase version to build. Currently available versions include:
+   *  `apache-hbase` — Apache HBase 1.2.0 (open-source)
+   *  **`apache-hbase-2`** — **Apache HBase 2.6.4 (open-source, latest)** ← *new*
+   *  `cdh5.8.3`, `cdh5.8.5`, `cdh5.12.0`, `cdh5.12.2`, `cdh5.13.0`, `cdh5.13.2`, `cdh5.13.3`, `cdh5.14.0` — Cloudera CDH 5.x   *  `hdp2.5.5`, `hdp2.6.1`, `hdp2.6.3`, `hdp2.6.4` — Hortonworks HDP 2.x
+   *  `mapr5.2.0`, `mapr6.0.0` — MapR
+
+   See the [Build Guide](docs/build-guide.md) for the full profile table with component versions.
 
 2. Build the core modules. As previously mentioned, you only need to do this once.
    ````
@@ -147,36 +152,43 @@ HBase is further separated into sub-profiles, indicating the specific HBase dist
 
 3. Build a set of HBase platform modules
    ````
-   mvn clean install -Pcdh5.6.0
+   # Apache HBase 2.x (latest)
+   mvn clean install -Papache-hbase-2 -DskipTests
+
+   # or Cloudera CDH 5.8.3
+   mvn clean install -Pcdh5.8.3 -DskipTests
    ````
 
    You can combine these steps to build and test the HBase backed database from top to bottom, including running all unit and integration tests against a fresh HBase backed database. For example:
    ````
-   mvn clean install -Pcore,cdh5.6.0
+   mvn clean install -Pcore,apache-hbase-2
    ````
 
 ### Start a Server Running Against the Specified HBase Storage Architecture
+
+> For a fully detailed walkthrough, see the [Local Cluster Guide](docs/local-cluster-guide.md).
+
 To start a server:
 
 1. Start ZooKeeper:
    ````
-   cd hbase_sql && mvn exec:exec -Pcdh5.6.0,spliceZoo
+   cd platform_it && mvn exec:exec -Papache-hbase-2,spliceZoo
    ````
 2. Start YARN:
    ````
-   cd hbase_sql && mvn exec:java -Pcdh5.6.0,spliceYarn
+   cd platform_it && mvn exec:java -Papache-hbase-2,spliceYarn
    ````
 3. Start Kafka (optionally):
    ````
-   cd hbase_sql && mvn exec:exec -Pcdh5.6.0,spliceKafka
+   cd platform_it && mvn exec:exec -Papache-hbase-2,spliceKafka
    ````
 4. Start HBase (master + 1 regionserver, same JVM):
    ````
-   cd hbase_sql && mvn exec:exec -Pcdh5.6.0,spliceFast
+   cd platform_it && mvn exec:exec -Papache-hbase-2,spliceFast
    ````
 5. Start additional RegionServer(s) -- `memberNumber` should increase as additional RS are started:
    ````
-   cd hbase_sql && mvn exec:exec -Pcdh5.6.0,spliceClusterMember -DmemberNumber=2
+   cd platform_it && mvn exec:exec -Papache-hbase-2,spliceClusterMember -DmemberNumber=1
    ````
 6. Start the ij client:
 
