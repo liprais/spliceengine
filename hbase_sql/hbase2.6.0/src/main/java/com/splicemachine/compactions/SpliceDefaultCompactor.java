@@ -285,19 +285,15 @@ public class SpliceDefaultCompactor extends DefaultCompactor {
         // that data anytime soon
         final boolean dropBehind = true;
         if (this.conf.getBoolean("hbase.regionserver.compaction.private.readers", false)) {
-            // clone all StoreFiles, so we'll do the compaction on a independent copy of StoreFiles,
-            // HFileFiles, and their readers
-            readersToClose =new ArrayList<>(request.getFiles().size());
-            for (StoreFile f : request.getFiles()) {
-                readersToClose.add(new StoreFile(f));
-            }
+            // In HBase 2.x, StoreFile is an interface; use store files directly
+            readersToClose = new ArrayList<>(request.getFiles());
             scanners = createFileScanners(readersToClose, smallestReadPoint, dropBehind);
         } else {
             readersToClose = Collections.emptyList();
             scanners = createFileScanners(request.getFiles(), smallestReadPoint, dropBehind);
         }
 
-        StoreFile.Writer writer = null;
+        StoreFileWriter writer = null;
         List<Path> newFiles =new ArrayList<>();
         boolean cleanSeqId = false;
         IOException e = null;
@@ -566,7 +562,7 @@ public class SpliceDefaultCompactor extends DefaultCompactor {
      * @return
      * @throws IOException
      */
-    public StoreFile.Writer createWriterInTmp(long maxKeyCount, Compression.Algorithm compression,
+    public StoreFileWriter createWriterInTmp(long maxKeyCount, Compression.Algorithm compression,
                                               boolean isCompaction, boolean includeMVCCReadpoint, boolean includesTag,
                                               boolean shouldDropBehind, InetSocketAddress[] favoredNodes)
             throws IOException {
@@ -587,7 +583,7 @@ public class SpliceDefaultCompactor extends DefaultCompactor {
 
         HFileContext hFileContext = createFileContext(compression, includeMVCCReadpoint, includesTag,
                 getCryptoContext());
-        StoreFile.Writer w = new StoreFile.WriterBuilder(conf, writerCacheConf,
+        StoreFileWriter w = new StoreFileWriter.Builder(conf, writerCacheConf,
                 wrappedFileSystem)
                 .withFilePath( ((HStore)store).getRegionFileSystem().createTempName())
                 .withComparator(store.getComparator())
@@ -708,7 +704,7 @@ public class SpliceDefaultCompactor extends DefaultCompactor {
      * @return Writer for a new StoreFile in the tmp dir.
      * @throws IOException
      */
-    protected StoreFile.Writer createTmpWriter(FileDetails fd, boolean shouldDropBehind, InetSocketAddress[] favoredNodes)
+    protected StoreFileWriter createTmpWriter(FileDetails fd, boolean shouldDropBehind, InetSocketAddress[] favoredNodes)
             throws IOException {
 
         // When all MVCC readpoints are 0, don't write them.

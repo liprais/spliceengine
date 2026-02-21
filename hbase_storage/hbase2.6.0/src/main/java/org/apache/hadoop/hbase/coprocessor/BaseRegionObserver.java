@@ -14,9 +14,6 @@
 
 package org.apache.hadoop.hbase.coprocessor;
 
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CompareOperator;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.ByteArrayComparable;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -197,7 +194,7 @@ public abstract class BaseRegionObserver implements RegionObserver, RegionCoproc
 
     // HBase 1.x preBatchMutate
     public void preBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c,
-                               org.apache.hadoop.hbase.regionserver.MiniBatchOperationInProgress<Mutation> miniBatchOp)
+                               MiniBatchOperationInProgress<Mutation> miniBatchOp)
             throws IOException {
     }
 }
