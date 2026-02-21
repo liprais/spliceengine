@@ -28,18 +28,16 @@
 
 ### Development Environment setup
 #### Development/Build tools (Java, maven, etc.):
-Note: JDK 1.8 is required for the master branch.
+Note: JDK 11 is required for the master branch.
 
-* [Java 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Java 11](https://adoptium.net/temurin/releases/?version=11) (Eclipse Temurin / OpenJDK 11 recommended)
 * [Apache Maven 3.3.x (Jenkins uses 3.3.9)](https://maven.apache.org/download.cgi)
 
 #### Helpful Environment Variables, etc. (example assumes Mac OS X developer machine)
 ```bash
 # java
-export J6_HOME="`/usr/libexec/java_home -v 1.6`"
-export J7_HOME="`/usr/libexec/java_home -v 1.7`"
-export J8_HOME="`/usr/libexec/java_home -v 1.8`"
-export JAVA_HOME=${J8_HOME}
+export J11_HOME="`/usr/libexec/java_home -v 11`"
+export JAVA_HOME=${J11_HOME}
 # maven
 export M2_HOME="/opt/maven/apache-maven-3.3.9"
 export MAVEN_OPTS="-Xmx4g -Djava.awt.headless=true -XX:ReservedCodeCacheSize=512m"

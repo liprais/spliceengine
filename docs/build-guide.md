@@ -10,7 +10,7 @@ This guide covers how to build SpliceEngine for all supported platforms, includi
 
 | Tool | Version | Notes |
 |:-----|:--------|:------|
-| JDK | **8** | Oracle JDK 8 or OpenJDK 8; JDK 11+ is **not** yet supported |
+| JDK | **11** | OpenJDK 11 or Eclipse Temurin 11 recommended |
 | Apache Maven | **3.3.x** (3.3.9 recommended) | Jenkins CI uses 3.3.9 |
 | Git | any recent version | |
 | `rlwrap` | any | Optional but recommended for the SQL shell |
@@ -21,9 +21,9 @@ Add the following to your shell profile (`~/.bash_profile`, `~/.zshrc`, etc.):
 
 ```bash
 # Java
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)   # macOS
-# export JAVA_HOME=/usr/lib/jvm/java-8-oracle         # Ubuntu/Debian
-# export JAVA_HOME=/opt/jdk1.8.0_xxx                  # CentOS/RHEL
+export JAVA_HOME=$(/usr/libexec/java_home -v 11)     # macOS
+# export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 # Ubuntu/Debian
+# export JAVA_HOME=/usr/lib/jvm/java-11-openjdk       # CentOS/RHEL
 
 # Maven
 export M2_HOME="/opt/maven/apache-maven-3.3.9"
@@ -169,7 +169,7 @@ cd platform_it && mvn verify -Papache-hbase-2
 2. In the Maven panel, enable the desired profiles (e.g., `core` + `apache-hbase-2`).
 3. Click **Reimport**.
 
-> Make sure the Project SDK is set to **Java 8**.
+> Make sure the Project SDK is set to **Java 11**.
 
 ### Eclipse
 
@@ -209,4 +209,4 @@ Under HBase 2.x, the shaded protobuf classes (`ClientProtos`, `ProtobufUtil`, `R
 
 ### Java Compatibility
 
-All modules must be compiled with **JDK 8**. The HBase 2.x runtime also runs under JDK 8 in the current configuration. JDK 11 support is planned for a future release.
+All modules are compiled with **JDK 11** (`-source 11 -target 11`). JDK 11 is the minimum required runtime version.

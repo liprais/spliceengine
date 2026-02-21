@@ -81,8 +81,8 @@
         <obfuscate.si.tag/>
         <ij.connection.port>1527</ij.connection.port>
         <skip.staticanalysis>${skip.sa}</skip.staticanalysis>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
         <scala.binary.version>2.11</scala.binary.version>
         <spark.version>2.1.0</spark.version>
@@ -473,13 +473,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
+                    <version>3.8.1</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <encoding>UTF-8</encoding>
                         <compilerArgs>
-                            <arg>-XDignore.symbol.file</arg>
                             <arg>-Xpkginfo:always</arg>
                         </compilerArgs>
                         <fork>true</fork>
@@ -507,7 +506,7 @@
                                 <version>[3.3.0,)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <version>1.8</version>
+                                <version>11</version>
                             </requireJavaVersion>
                             <requireOS>
                                 <family>unix</family>
