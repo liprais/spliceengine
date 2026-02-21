@@ -27,7 +27,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.ClusterConnection;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RegionLocator;
@@ -366,7 +366,7 @@ public class AdapterPartition extends SkeletonHBaseClientPartition{
 
     private List<HRegionLocation> getAllRegionLocations(boolean refresh) throws IOException {
         if (refresh)
-           ((HConnection) connection).clearRegionCache(tableName);
+           ((ClusterConnection) connection).clearRegionCache(tableName);
         try(RegionLocator regionLocator=connection.getRegionLocator(tableName)){
             return regionLocator.getAllRegionLocations();
         }
